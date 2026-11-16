@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ApexCommerce - Production-Ready Cloud E-Commerce Platform
 
 ApexCommerce is a complete, enterprise-grade, full-stack E-Commerce website architected for high availability, security, and scalability on **Amazon Web Services (AWS)** using Infrastructure-as-Code (Terraform).
@@ -289,3 +290,7 @@ Verify each feature of the platform:
    - Go to `/admin/products/new` and test image upload to S3 and product creation.
    - Go to `/admin/orders` and change order status from `PENDING` to `SHIPPED` or `DELIVERED`.
    - Go to `/admin/customers` and toggle customer block/unblock.
+=======
+# Ecommerce-project
+project 
+>>>>>>> 7f2d14ef3fb18fe47f48f72b68a15530ccaac74c
