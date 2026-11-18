@@ -55,7 +55,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "CloudFront CDN for ApexCommerce Product Images"
-  default_root_object = ""
+  default_root_object = "index.html"
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
@@ -109,7 +109,10 @@ resource "aws_s3_bucket_policy" "allow_cloudfront" {
         Resource  = "${aws_s3_bucket.product_images.arn}/*"
         Condition = {
           StringEquals = {
-            "AWS:SourceArn" = aws_cloudfront_distribution.s3_distribution.arn
+            "AWS:SourceArn" = [
+              aws_cloudfront_distribution.s3_distribution.arn,
+              aws_cloudfront_distribution.website_cdn.arn
+            ]
           }
         }
       }

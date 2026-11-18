@@ -1,3 +1,8 @@
+output "worldwide_website_url" {
+  description = "Worldwide HTTPS CloudFront URL accelerated across 400+ Global Edge Locations"
+  value       = "https://${aws_cloudfront_distribution.website_cdn.domain_name}"
+}
+
 output "alb_dns_name" {
   description = "The public Application Load Balancer DNS Name. Access your live website here!"
   value       = aws_lb.main.dns_name

@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: ap-south-1
   ECR_BACKEND_REPO: apex-ecommerce-backend
   ECR_FRONTEND_REPO: apex-ecommerce-frontend
   ECS_CLUSTER: apex-ecommerce-cluster

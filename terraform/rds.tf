@@ -9,11 +9,17 @@ resource "aws_db_subnet_group" "main" {
   }
 }
 
+# Get AWS Default Supported PostgreSQL Version
+data "aws_rds_engine_version" "postgres" {
+  engine       = "postgres"
+  default_only = true
+}
+
 # RDS PostgreSQL Instance
 resource "aws_db_instance" "postgres" {
   identifier             = "apex-ecommerce-db"
   engine                 = "postgres"
-  engine_version         = "16.1"
+  engine_version         = data.aws_rds_engine_version.postgres.version
   instance_class         = "db.t4g.micro"
   allocated_storage      = 20
   max_allocated_storage  = 100
@@ -28,7 +34,7 @@ resource "aws_db_instance" "postgres" {
   vpc_security_group_ids = [aws_security_group.rds.id]
   publicly_accessible    = false
 
-  backup_retention_period   = 7
+  backup_retention_period   = 1
   backup_window             = "03:00-04:00"
   maintenance_window        = "Mon:04:30-Mon:05:30"
   auto_minor_version_upgrade = true

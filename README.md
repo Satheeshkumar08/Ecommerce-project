@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # ApexCommerce - Production-Ready Cloud E-Commerce Platform
 
 ApexCommerce is a complete, enterprise-grade, full-stack E-Commerce website architected for high availability, security, and scalability on **Amazon Web Services (AWS)** using Infrastructure-as-Code (Terraform).
@@ -14,9 +13,10 @@ flowchart TD
     end
 
     subgraph AWS ["☁️ Amazon Web Services (AWS)"]
-        subgraph Edge ["CloudFront CDN & DNS"]
-            ALB["Application Load Balancer (ALB)\nHTTP: 80 / HTTPS: 443"]
-            CF["CloudFront CDN Distribution\n(Images & Static Assets)"]
+        subgraph Edge ["Worldwide CloudFront CDN & DNS (400+ Edge Locations)"]
+            CF_Web["CloudFront Website CDN\n(Worldwide Edge Acceleration & SSL)"]
+            CF_S3["CloudFront Media CDN\n(Images & S3 Static Assets)"]
+            ALB["Application Load Balancer (ALB)\nHTTP: 80 / Internal Ingress"]
             ACM["ACM SSL / Route 53 (Optional)"]
         end
 
@@ -53,7 +53,9 @@ flowchart TD
         Stripe["Stripe Payments API"]
     end
 
-    Client --> ALB
+    Client -->|HTTPS Fast Edge Access| CF_Web
+    CF_Web -->|Dynamic /api/* & SSR| ALB
+    CF_Web -->|Static Next.js Cached Assets| Client
     ALB -->|/api/* & /health| Backend
     ALB -->|/*| Frontend
     Frontend -->|Client/SSR Fetch| ALB
@@ -61,8 +63,8 @@ flowchart TD
     Backend -->|PutObject / Presigned| S3
     Backend -->|Create PaymentIntent| Stripe
     Client -->|Card Checkout| Stripe
-    Client -->|View Product Images| CF
-    CF -->|Secure OAC Read| S3
+    Client -->|View Product Images| CF_S3
+    CF_S3 -->|Secure OAC Read| S3
     ASG -.->|Auto Scales Tasks| ECSCluster
     Backend -.->|Sends Logs| CW
     Frontend -.->|Sends Logs| CW
@@ -179,6 +181,22 @@ docker compose exec backend npx prisma db seed
 
 ---
 
+### ⚡ Automated 1-Click PowerShell Deployment (Recommended)
+
+You can run the included deployment automation script:
+
+```powershell
+# Run full automated deployment (Infra + Docker Build & Push + ECS Deployment)
+.\deploy.ps1
+
+# Or run individual stages:
+.\deploy.ps1 infra       # Provision AWS infrastructure only with Terraform
+.\deploy.ps1 build-push  # Build and push Docker images to Amazon ECR
+.\deploy.ps1 status      # View Worldwide CloudFront URLs and endpoints
+```
+
+---
+
 ### Step 1: Initialize and Deploy AWS Infrastructure with Terraform
 
 ```bash
@@ -200,6 +218,7 @@ terraform apply -auto-approve
 Once provisioning completes, Terraform outputs the public URLs and database details:
 ```
 Outputs:
+worldwide_website_url       = "https://d98765example.cloudfront.net"
 alb_dns_name                = "apex-ecommerce-alb-123456789.us-east-1.elb.amazonaws.com"
 public_website_url          = "http://apex-ecommerce-alb-123456789.us-east-1.elb.amazonaws.com"
 cloudfront_url              = "https://d12345abcdef.cloudfront.net"
@@ -290,7 +309,4 @@ Verify each feature of the platform:
    - Go to `/admin/products/new` and test image upload to S3 and product creation.
    - Go to `/admin/orders` and change order status from `PENDING` to `SHIPPED` or `DELIVERED`.
    - Go to `/admin/customers` and toggle customer block/unblock.
-=======
-# Ecommerce-project
-project 
->>>>>>> 7f2d14ef3fb18fe47f48f72b68a15530ccaac74c
+

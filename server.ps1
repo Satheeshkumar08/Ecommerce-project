@@ -10,7 +10,7 @@ try {
     exit 1
 }
 
-$htmlPath = "d:\SATHISH\E-commerc cloud\index.html"
+$htmlPath = Join-Path $PSScriptRoot "index.html"
 if (-not (Test-Path $htmlPath)) {
     $htmlContent = "<h1>ApexCommerce</h1>"
 } else {

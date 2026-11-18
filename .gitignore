@@ -1,0 +1,28 @@
+# AWS and Environment Credentials
+.env
+.env.local
+.env.aws
+*.tfvars
+!terraform.tfvars.example
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfplan
+tfplan
+
+# Dependencies & Build artifacts
+node_modules/
+.next/
+dist/
+build/
+.docker/
+
+# OS and IDE Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
