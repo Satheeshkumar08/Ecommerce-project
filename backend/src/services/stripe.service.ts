@@ -8,8 +8,8 @@ export const stripe = env.STRIPE_SECRET_KEY
   : null;
 
 export const createPaymentIntent = async (
-  amountInDollars: number,
-  currency: string = 'usd',
+  amount: number,
+  currency: string = 'inr',
   metadata: Record<string, string> = {}
 ) => {
   if (!stripe) {
@@ -22,7 +22,7 @@ export const createPaymentIntent = async (
   }
 
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: Math.round(amountInDollars * 100), // Stripe takes amounts in cents
+    amount: Math.round(amount * 100), // Stripe takes amounts in smallest currency unit (paise/cents)
     currency,
     automatic_payment_methods: {
       enabled: true,

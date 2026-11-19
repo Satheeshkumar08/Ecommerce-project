@@ -21,8 +21,12 @@
       <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
       <span>AWS Cloud Architecture: ECS Fargate • RDS PostgreSQL • S3 CloudFront</span>
     </div>
-    <div class="flex items-center gap-4 text-[11px]">
-      <span class="text-emerald-400 font-semibold">Stripe Test Mode Enabled</span>
+    <div class="flex items-center gap-3 sm:gap-4 text-[11px]">
+      <span class="text-emerald-400 font-semibold hidden sm:inline">Stripe Test Mode Enabled</span>
+      <button onclick="openAuthModal('login')" class="text-emerald-300 hover:text-white font-bold bg-emerald-800/80 hover:bg-emerald-700 px-2.5 py-0.5 rounded-lg border border-emerald-500/50 transition flex items-center gap-1">
+        <span>🔑</span>
+        <span>Log In</span>
+      </button>
       <button onclick="switchView('admin')" class="text-purple-400 hover:text-purple-300 font-bold underline">
         Switch to Admin Portal ➔
       </button>
@@ -63,13 +67,25 @@
         <button onclick="filterCategory('home-living')" class="hover:text-emerald-600 transition">Home</button>
       </nav>
 
-      <!-- Cart & Portal Buttons -->
-      <div class="flex items-center gap-3">
-        <button onclick="toggleCart()" class="relative p-2.5 text-slate-700 hover:text-emerald-600 hover:bg-slate-100 rounded-full transition">
+      <!-- Cart, Auth & Portal Buttons -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button onclick="toggleCart()" class="relative p-2.5 text-slate-700 hover:text-emerald-600 hover:bg-slate-100 rounded-full transition" title="Shopping Cart">
           <span class="text-xl">🛒</span>
           <span id="cartCountBadge" class="absolute top-1 right-1 w-5 h-5 bg-emerald-600 text-white text-xs font-bold rounded-full flex items-center justify-center">0</span>
         </button>
-        <button onclick="switchView('admin')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-sm transition">
+
+        <!-- Dynamic Auth State (Login / Register buttons OR User Dropdown) -->
+        <div id="navAuthContainer" class="flex items-center gap-2">
+          <button onclick="openAuthModal('login')" class="px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:text-emerald-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition flex items-center gap-1.5 shadow-sm bg-white">
+            <span>👤</span>
+            <span>Log In</span>
+          </button>
+          <button onclick="openAuthModal('register')" class="hidden sm:inline-flex px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition">
+            Sign Up
+          </button>
+        </div>
+
+        <button onclick="checkAdminAccess()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-sm transition">
           🛡️ Admin Console
         </button>
       </div>
@@ -90,9 +106,13 @@
         <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
           High-performance electronics, artisan home goods, and minimal apparel powered by Next.js, Express, PostgreSQL, and Stripe.
         </p>
-        <div class="flex gap-3 pt-2">
+        <div class="flex flex-wrap gap-3 pt-2">
           <button onclick="scrollToProducts()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm shadow-lg shadow-emerald-600/30 transition">
             Explore 32+ Products
+          </button>
+          <button onclick="openAuthModal('login')" class="px-6 py-3 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-xl text-sm shadow-md transition flex items-center gap-1.5">
+            <span>🔑</span>
+            <span>Sign In / Log In</span>
           </button>
           <button onclick="quickOrderDemo()" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-xl text-sm transition">
             ⚡ 1-Click Order Demo
@@ -144,7 +164,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
       <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
         <p class="text-xs font-bold text-slate-400 uppercase">Gross Revenue</p>
-        <h3 id="adminGrossRevenue" class="text-2xl font-black text-slate-900 mt-1">$4,850.00</h3>
+        <h3 id="adminGrossRevenue" class="text-2xl font-black text-slate-900 mt-1">₹4,85,000</h3>
         <span class="text-xs text-emerald-600 font-semibold mt-2 block">↑ 14.8% vs last week</span>
       </div>
       <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
@@ -304,6 +324,125 @@
     </div>
   </div>
 
+  <!-- ==================== AUTHENTICATION (LOGIN & REGISTER) MODAL ==================== -->
+  <div id="authModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-2xl relative border border-slate-100 max-h-[92vh] overflow-y-auto">
+      
+      <!-- Close Button -->
+      <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-xl font-bold p-1">✕</button>
+
+      <!-- Logo & Title -->
+      <div class="text-center">
+        <div class="w-12 h-12 bg-gradient-to-tr from-emerald-600 to-teal-400 rounded-2xl flex items-center justify-center text-white mx-auto shadow-md shadow-emerald-500/20 text-2xl font-black mb-3">
+          🛍️
+        </div>
+        <h2 id="authModalTitle" class="text-2xl font-black text-slate-900 tracking-tight">Sign in to your account</h2>
+        <p id="authModalSubtitle" class="text-xs text-slate-500 mt-1">Welcome back to ApexCommerce</p>
+      </div>
+
+      <!-- Auth Tabs: Sign In / Create Account -->
+      <div class="grid grid-cols-2 p-1 bg-slate-100 rounded-2xl text-xs font-bold text-center">
+        <button id="tabSignInBtn" onclick="switchAuthTab('login')" class="py-2 rounded-xl bg-white text-slate-900 shadow-sm transition">Sign In</button>
+        <button id="tabRegisterBtn" onclick="switchAuthTab('register')" class="py-2 rounded-xl text-slate-500 hover:text-slate-900 transition">Create Account</button>
+      </div>
+
+      <!-- Quick Demo Accounts One-Click Fill -->
+      <div id="demoAccountsBar" class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+        <div class="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+          <span>✨</span> Quick Demo Fill:
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="fillDemoCreds('admin')" class="py-1.5 px-2 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 text-xs font-semibold rounded-lg transition text-center">
+            Fill Admin Demo
+          </button>
+          <button type="button" onclick="fillDemoCreds('customer')" class="py-1.5 px-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-lg transition text-center">
+            Fill Customer Demo
+          </button>
+        </div>
+      </div>
+
+      <!-- Error Alert Message Banner -->
+      <div id="authErrorMessage" class="hidden p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs flex items-center gap-2">
+        <span class="text-sm font-bold">⚠️</span>
+        <span id="authErrorText">Invalid email or password</span>
+      </div>
+
+      <!-- Success Alert Message Banner -->
+      <div id="authSuccessMessage" class="hidden p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs flex items-center gap-2">
+        <span class="text-sm font-bold">✓</span>
+        <span id="authSuccessText">Logged in successfully!</span>
+      </div>
+
+      <!-- Auth Form -->
+      <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+        <!-- Full Name (Register Only) -->
+        <div id="authNameField" class="hidden">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
+          <div class="relative">
+            <input id="authNameInput" type="text" placeholder="Jane Doe" class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500" />
+            <span class="absolute left-3 top-2.5 text-slate-400">👤</span>
+          </div>
+        </div>
+
+        <!-- Email Address -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email Address</label>
+          <div class="relative">
+            <input id="authEmailInput" type="email" required placeholder="name@example.com" class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500" />
+            <span class="absolute left-3 top-2.5 text-slate-400">✉️</span>
+          </div>
+        </div>
+
+        <!-- Password with Show/Hide Toggle -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Password</label>
+            <button type="button" onclick="handleForgotPassword()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">Forgot password?</button>
+          </div>
+          <div class="relative">
+            <input id="authPasswordInput" type="password" required placeholder="••••••••" class="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500" />
+            <span class="absolute left-3 top-2.5 text-slate-400">🔒</span>
+            <button type="button" onclick="togglePasswordVisibility('authPasswordInput', 'passwordToggleIcon')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 focus:outline-none text-sm" title="Toggle password visibility">
+              <span id="passwordToggleIcon">👁️</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Confirm Password (Register Only) -->
+        <div id="authConfirmPasswordField" class="hidden">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Confirm Password</label>
+          <div class="relative">
+            <input id="authConfirmPasswordInput" type="password" placeholder="••••••••" class="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500" />
+            <span class="absolute left-3 top-2.5 text-slate-400">🔒</span>
+            <button type="button" onclick="togglePasswordVisibility('authConfirmPasswordInput', 'confirmPasswordToggleIcon')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 focus:outline-none text-sm">
+              <span id="confirmPasswordToggleIcon">👁️</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember Me Checkbox -->
+        <div class="flex items-center justify-between text-xs">
+          <label class="flex items-center gap-2 cursor-pointer select-none text-slate-600">
+            <input id="rememberMeCheckbox" type="checkbox" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500" />
+            <span>Remember me</span>
+          </label>
+          <span class="text-slate-400 text-[11px]">Protected by Apex Auth</span>
+        </div>
+
+        <!-- Submit Button with Spinner -->
+        <button id="authSubmitBtn" type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-md shadow-emerald-600/20 transition flex items-center justify-center">
+          <span id="authSubmitBtnText">Sign In</span>
+        </button>
+      </form>
+
+      <!-- Bottom Switcher -->
+      <p class="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+        <span id="authSwitchPrompt">Don't have an account?</span>
+        <button id="authSwitchBtn" onclick="toggleAuthMode()" class="font-bold text-emerald-600 hover:text-emerald-700 ml-1">Create an account</button>
+      </p>
+    </div>
+  </div>
+
   <!-- JAVASCRIPT STATE AND INTERACTIVITY -->
   <script>
     // Sample Catalog Data (32 items)
@@ -323,6 +462,10 @@
     ];
 
     let cart = [];
+    let currentUser = JSON.parse(localStorage.getItem('apex_user') || 'null');
+    let authMode = 'login';
+    let userDropdownOpen = false;
+
     let orders = [
       { id: 'ORD-2026-00109', customer: 'john.doe@example.com', total: 324.99, status: 'DELIVERED', date: 'Nov 14, 2026' },
       { id: 'ORD-2026-00110', customer: 'alice.smith@example.com', total: 799.00, status: 'SHIPPED', date: 'Nov 15, 2026' },
@@ -468,6 +611,11 @@
         alert('Please add items to your cart before proceeding to checkout.');
         return;
       }
+      if (!currentUser) {
+        openAuthModal('login');
+        showAuthError("Please sign in or create an account to finalize your order.");
+        return;
+      }
       toggleCart(false);
       document.getElementById('checkoutModal').classList.remove('hidden');
     }
@@ -575,9 +723,304 @@
       openCheckoutModal();
     }
 
+    // ==================== AUTHENTICATION LOGIC ====================
+    function renderNavAuth() {
+      const container = document.getElementById('navAuthContainer');
+      if (!container) return;
+
+      if (currentUser) {
+        const initial = (currentUser.name && currentUser.name[0]) ? currentUser.name[0].toUpperCase() : 'U';
+        const firstName = currentUser.name ? currentUser.name.split(' ')[0] : 'User';
+        const isAdmin = currentUser.role === 'ADMIN';
+
+        container.innerHTML = `
+          <div class="relative">
+            <button onclick="toggleUserDropdown()" class="flex items-center gap-2 p-1.5 pl-3 border border-slate-200 hover:border-slate-300 rounded-full text-slate-700 hover:bg-slate-50 transition">
+              <span class="text-xs font-bold max-w-[80px] sm:max-w-[120px] truncate">${firstName}</span>
+              <div class="w-7 h-7 rounded-full ${isAdmin ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'} font-black text-xs flex items-center justify-center">
+                ${initial}
+              </div>
+            </button>
+            <div id="userDropdownMenu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in">
+              <div class="px-4 py-2 border-b border-slate-100">
+                <p class="text-[10px] uppercase font-bold text-slate-400">Signed in as</p>
+                <p class="text-xs font-bold text-slate-900 truncate">${currentUser.email}</p>
+                <span class="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-black ${isAdmin ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'}">${currentUser.role || 'CUSTOMER'}</span>
+              </div>
+              <button onclick="switchView('store'); toggleUserDropdown();" class="w-full text-left px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                🛍️ Storefront
+              </button>
+              ${isAdmin ? `
+              <button onclick="switchView('admin'); toggleUserDropdown();" class="w-full text-left px-4 py-2 text-xs font-semibold text-purple-700 hover:bg-purple-50 flex items-center gap-2">
+                🛡️ Admin Dashboard
+              </button>` : ''}
+              <button onclick="handleLogout()" class="w-full text-left px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-slate-100">
+                🚪 Sign Out
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <button onclick="openAuthModal('login')" class="px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:text-emerald-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition">
+            Log In
+          </button>
+          <button onclick="openAuthModal('register')" class="hidden sm:inline-flex px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition">
+            Sign Up
+          </button>
+        `;
+      }
+    }
+
+    function toggleUserDropdown() {
+      const menu = document.getElementById('userDropdownMenu');
+      if (menu) {
+        menu.classList.toggle('hidden');
+      }
+    }
+
+    // Close user dropdown if clicked outside
+    window.addEventListener('click', function(e) {
+      const menu = document.getElementById('userDropdownMenu');
+      if (menu && !menu.classList.contains('hidden')) {
+        const btn = e.target.closest('#navAuthContainer');
+        if (!btn) {
+          menu.classList.add('hidden');
+        }
+      }
+    });
+
+    function openAuthModal(mode) {
+      authMode = mode || 'login';
+      switchAuthTab(authMode);
+      hideAuthAlerts();
+      document.getElementById('authModal').classList.remove('hidden');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').classList.add('hidden');
+      hideAuthAlerts();
+    }
+
+    function switchAuthTab(mode) {
+      authMode = mode;
+      const tabSignIn = document.getElementById('tabSignInBtn');
+      const tabRegister = document.getElementById('tabRegisterBtn');
+      const nameField = document.getElementById('authNameField');
+      const confirmField = document.getElementById('authConfirmPasswordField');
+      const title = document.getElementById('authModalTitle');
+      const subtitle = document.getElementById('authModalSubtitle');
+      const submitBtnText = document.getElementById('authSubmitBtnText');
+      const switchPrompt = document.getElementById('authSwitchPrompt');
+      const switchBtn = document.getElementById('authSwitchBtn');
+      const demoBar = document.getElementById('demoAccountsBar');
+
+      hideAuthAlerts();
+
+      if (mode === 'register') {
+        tabSignIn.className = "py-2 rounded-xl text-slate-500 hover:text-slate-900 transition";
+        tabRegister.className = "py-2 rounded-xl bg-white text-slate-900 shadow-sm transition";
+        nameField.classList.remove('hidden');
+        confirmField.classList.remove('hidden');
+        title.innerText = "Create an account";
+        subtitle.innerText = "Join thousands of customers on ApexCommerce";
+        submitBtnText.innerText = "Create Account";
+        switchPrompt.innerText = "Already have an account?";
+        switchBtn.innerText = "Sign in";
+        demoBar.classList.add('hidden');
+      } else {
+        tabSignIn.className = "py-2 rounded-xl bg-white text-slate-900 shadow-sm transition";
+        tabRegister.className = "py-2 rounded-xl text-slate-500 hover:text-slate-900 transition";
+        nameField.classList.add('hidden');
+        confirmField.classList.add('hidden');
+        title.innerText = "Sign in to your account";
+        subtitle.innerText = "Welcome back to ApexCommerce";
+        submitBtnText.innerText = "Sign In";
+        switchPrompt.innerText = "Don't have an account?";
+        switchBtn.innerText = "Create an account";
+        demoBar.classList.remove('hidden');
+      }
+    }
+
+    function toggleAuthMode() {
+      switchAuthTab(authMode === 'login' ? 'register' : 'login');
+    }
+
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerText = '🙈';
+      } else {
+        input.type = 'password';
+        icon.innerText = '👁️';
+      }
+    }
+
+    function fillDemoCreds(type) {
+      switchAuthTab('login');
+      const emailInput = document.getElementById('authEmailInput');
+      const passInput = document.getElementById('authPasswordInput');
+      if (type === 'admin') {
+        emailInput.value = 'admin@example.com';
+        passInput.value = 'Admin@123456';
+      } else {
+        emailInput.value = 'john.doe@example.com';
+        passInput.value = 'Customer@123456';
+      }
+      hideAuthAlerts();
+    }
+
+    function showAuthError(msg) {
+      const errBox = document.getElementById('authErrorMessage');
+      const errText = document.getElementById('authErrorText');
+      errText.innerText = msg;
+      errBox.classList.remove('hidden');
+      document.getElementById('authSuccessMessage').classList.add('hidden');
+    }
+
+    function showAuthSuccess(msg) {
+      const succBox = document.getElementById('authSuccessMessage');
+      const succText = document.getElementById('authSuccessText');
+      succText.innerText = msg;
+      succBox.classList.remove('hidden');
+      document.getElementById('authErrorMessage').classList.add('hidden');
+    }
+
+    function hideAuthAlerts() {
+      document.getElementById('authErrorMessage').classList.add('hidden');
+      document.getElementById('authSuccessMessage').classList.add('hidden');
+    }
+
+    function handleForgotPassword() {
+      const email = document.getElementById('authEmailInput').value.trim();
+      if (!email || !email.includes('@')) {
+        showAuthError("Please enter your email address to receive a password reset link.");
+        return;
+      }
+      showAuthSuccess("If an account exists for " + email + ", a password reset link has been sent.");
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      hideAuthAlerts();
+
+      const email = document.getElementById('authEmailInput').value.trim();
+      const password = document.getElementById('authPasswordInput').value;
+      const submitBtn = document.getElementById('authSubmitBtn');
+      const submitBtnText = document.getElementById('authSubmitBtnText');
+
+      if (!email || !email.includes('@')) {
+        showAuthError("Please enter a valid email address.");
+        return;
+      }
+
+      if (password.length < 8) {
+        showAuthError("Password must be at least 8 characters long.");
+        return;
+      }
+
+      if (authMode === 'register') {
+        const name = document.getElementById('authNameInput').value.trim();
+        const confirmPass = document.getElementById('authConfirmPasswordInput').value;
+
+        if (!name) {
+          showAuthError("Please enter your full name.");
+          return;
+        }
+
+        if (password !== confirmPass) {
+          showAuthError("Passwords do not match.");
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtnText.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Creating Account...';
+
+        setTimeout(() => {
+          currentUser = {
+            id: 'usr_' + Date.now(),
+            name: name,
+            email: email,
+            role: 'CUSTOMER',
+            token: 'jwt_' + Math.random().toString(36).substring(2)
+          };
+
+          localStorage.setItem('apex_user', JSON.stringify(currentUser));
+          showAuthSuccess(`Account created! Welcome, ${name.split(' ')[0]}.`);
+          submitBtn.disabled = false;
+          submitBtnText.innerText = 'Create Account';
+
+          setTimeout(() => {
+            closeAuthModal();
+            renderNavAuth();
+          }, 800);
+        }, 500);
+
+      } else {
+        submitBtn.disabled = true;
+        submitBtnText.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Signing in...';
+
+        setTimeout(() => {
+          let role = 'CUSTOMER';
+          let name = 'Customer User';
+
+          if (email.toLowerCase().includes('admin')) {
+            role = 'ADMIN';
+            name = 'Administrator';
+          } else if (email.toLowerCase().includes('john')) {
+            name = 'John Doe';
+          } else {
+            name = email.split('@')[0].replace(/[._-]/g, ' ');
+            name = name.charAt(0).toUpperCase() + name.slice(1);
+          }
+
+          currentUser = {
+            id: 'usr_' + Date.now(),
+            name: name,
+            email: email,
+            role: role,
+            token: 'jwt_' + Math.random().toString(36).substring(2)
+          };
+
+          localStorage.setItem('apex_user', JSON.stringify(currentUser));
+          showAuthSuccess(`Welcome back, ${name.split(' ')[0]}!`);
+          submitBtn.disabled = false;
+          submitBtnText.innerText = 'Sign In';
+
+          setTimeout(() => {
+            closeAuthModal();
+            renderNavAuth();
+            if (role === 'ADMIN') {
+              switchView('admin');
+            }
+          }, 700);
+        }, 500);
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('apex_user');
+      currentUser = null;
+      renderNavAuth();
+      switchView('store');
+    }
+
+    function checkAdminAccess() {
+      if (currentUser && currentUser.role === 'ADMIN') {
+        switchView('admin');
+      } else {
+        openAuthModal('login');
+        fillDemoCreds('admin');
+        showAuthError("Please sign in as Administrator to access the Admin Console.");
+      }
+    }
+
     // Initial render
     renderProducts();
     updateCartUI();
+    renderNavAuth();
   </script>
 </body>
 </html>

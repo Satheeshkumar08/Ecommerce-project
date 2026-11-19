@@ -10,7 +10,7 @@ export const createIntent = async (req: Request, res: Response): Promise<void> =
     return;
   }
 
-  const { amount } = req.body; // In dollars
+  const { amount } = req.body; // In INR (Indian Rupees)
 
   if (!amount || amount <= 0) {
     res.status(400).json({ message: 'Invalid payment amount.' });
@@ -18,7 +18,7 @@ export const createIntent = async (req: Request, res: Response): Promise<void> =
   }
 
   try {
-    const paymentIntent = await createPaymentIntent(amount, 'usd', {
+    const paymentIntent = await createPaymentIntent(amount, 'inr', {
       userId: req.user.id,
       userEmail: req.user.email,
     });

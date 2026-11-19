@@ -181,29 +181,29 @@ export default function NewProductPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
-              Price ($)
+              Price (₹)
             </label>
             <input
               type="number"
-              step="0.01"
+              step="1"
               required
               value={formData.price}
               onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              placeholder="99.99"
+              placeholder="1999"
               className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
-              Compare Price (Optional)
+              Compare Price (₹ Optional)
             </label>
             <input
               type="number"
-              step="0.01"
+              step="1"
               value={formData.compareAtPrice}
               onChange={(e) => setFormData({ ...formData, compareAtPrice: e.target.value })}
-              placeholder="129.99"
+              placeholder="2499"
               className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500"
             />
           </div>

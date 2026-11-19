@@ -187,7 +187,7 @@ export default function HomePage() {
               Upgrade Your Setup with Up to 25% Off
             </h3>
             <p className="text-emerald-100 text-sm sm:text-base leading-relaxed">
-              Premium wireless audio, ergonomic mechanical keyboards, and 4K monitors on sale this week only. Free shipping on all orders over $100.
+              Premium wireless audio, ergonomic mechanical keyboards, and 4K monitors on sale this week only. Free shipping on all orders over ₹999.
             </p>
             <div className="pt-2">
               <Link
